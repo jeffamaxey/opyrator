@@ -22,15 +22,6 @@ def main(args: dict) -> None:
     if args.get(build_utils.FLAG_MAKE):
         build_docker.build_docker_image(COMPONENT_NAME, version, exit_on_error=True)
 
-    if args.get(build_utils.FLAG_CHECK):
-        pass
-        #  build_docker.lint_dockerfile(exit_on_error=True)
-        # TODO: the python base image currently has vulnerabilities
-        # build_docker.check_image(
-        #     image=build_docker.get_image_name(name=COMPONENT_NAME, tag=version),
-        #     exit_on_error=True,
-        # )
-
     if args.get(build_utils.FLAG_RELEASE):
         build_docker.release_docker_image(
             COMPONENT_NAME,

@@ -68,10 +68,7 @@ def is_single_dict_property(property: Dict) -> bool:
 
 
 def is_single_reference(property: Dict) -> bool:
-    if property.get("type") is not None:
-        return False
-
-    return bool(property.get("$ref"))
+    return bool(property.get("$ref")) if property.get("type") is None else False
 
 
 def is_multi_file_property(property: Dict) -> bool:

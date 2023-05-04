@@ -16,9 +16,7 @@ def main(args: dict) -> None:
     # set current path as working dir
     os.chdir(HERE)
 
-    version = args.get(build_utils.FLAG_VERSION)
-
-    if version:
+    if version := args.get(build_utils.FLAG_VERSION):
         # Update version in _about.py
         build_python.update_version(
             os.path.join(HERE, f"src/{MAIN_PACKAGE}/_about.py"),
@@ -42,11 +40,13 @@ def main(args: dict) -> None:
             dist_file = glob.glob(f"./dist/{dist_name}-*.tar.gz")[0]
             shutil.copy(
                 dist_file,
-                os.path.join(HERE, "playground", "resources", dist_name + ".tar.gz"),
+                os.path.join(
+                    HERE, "playground", "resources", f"{dist_name}.tar.gz"
+                ),
             )
         except Exception as ex:
             build_utils.log(
-                "Failed to copy distribution to playground container " + str(ex)
+                f"Failed to copy distribution to playground container {str(ex)}"
             )
             build_utils.exit_process(1)
 
@@ -111,10 +111,6 @@ def main(args: dict) -> None:
             pypi_token=args.get(build_python.FLAG_PYPI_TOKEN),
             pypi_repository=args.get(build_python.FLAG_PYPI_REPOSITORY),
         )
-
-        # TODO: Publish coverage report: if private repo set CODECOV_TOKEN="token" or use -t
-        # build_utils.run("curl -s https://codecov.io/bash | bash -s", exit_on_error=False)
-        pass
 
     # Build the opyrator playground component
     build_utils.build("playground", args)

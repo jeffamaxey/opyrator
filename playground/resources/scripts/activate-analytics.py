@@ -44,8 +44,7 @@ if not tag:
 
 tracking_code = f"""<!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id={tag}"></script><script>window.dataLayer = window.dataLayer || []; function gtag(){{dataLayer.push(arguments);}} gtag('js', new Date()); gtag('config', '{tag}');</script>"""
 
-clarity_tag = os.getenv("CLARITY_TAG")
-if clarity_tag:
+if clarity_tag := os.getenv("CLARITY_TAG"):
     # Add clarity tracking code
     clarity_tracking_code = f"""
     <script type="text/javascript">
@@ -60,7 +59,7 @@ if clarity_tag:
     tracking_code += clarity_tracking_code
 
 size_before = os.stat(index_filename).st_size
-replace_in_file(index_filename, "<head>", "<head>" + tracking_code)
+replace_in_file(index_filename, "<head>", f"<head>{tracking_code}")
 size_after = os.stat(index_filename).st_size
 
 # print("Inserted tracking code into:", index_filename)
@@ -85,7 +84,7 @@ META_TAGS = """
 # <meta property="og:image" content="https://github.com/jrieke/traingenerator/raw/main/docs/assets/social-preview-tiny.png">
 
 size_before = os.stat(index_filename).st_size
-replace_in_file(index_filename, "<head>", "<head>" + META_TAGS)
+replace_in_file(index_filename, "<head>", f"<head>{META_TAGS}")
 size_after = os.stat(index_filename).st_size
 
 # print("Inserted meta tags into:", index_filename)

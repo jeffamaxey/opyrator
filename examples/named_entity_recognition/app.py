@@ -36,7 +36,7 @@ class NamedEntity(BaseModel):
 class NamedEntitiesOutput(BaseModel):
     __root__: List[NamedEntity]
 
-    def render_output_ui(self, streamlit, input) -> None:  # type: ignore
+    def render_output_ui(self, streamlit, input) -> None:    # type: ignore
         """Custom output UI.
 
         If this method is implmeneted, it will be used instead of the default Output UI renderer.
@@ -55,8 +55,7 @@ class NamedEntitiesOutput(BaseModel):
         text_parts = []
         last_index = 0
         for item in sorted(self.__root__, key=lambda x: x.start_char):
-            text_part = input.text[last_index : item.start_char]
-            if text_part:
+            if text_part := input.text[last_index : item.start_char]:
                 text_parts.append(text_part)
             text_parts.append(
                 (
@@ -67,8 +66,7 @@ class NamedEntitiesOutput(BaseModel):
             )
             last_index = item.end_char
 
-        text_part = input.text[last_index : len(input.text)]
-        if text_part:
+        if text_part := input.text[last_index:]:
             text_parts.append(text_part)
         annotated_text(*text_parts)
 

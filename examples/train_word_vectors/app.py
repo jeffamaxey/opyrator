@@ -65,9 +65,16 @@ def train_word_vectors(input: WordVectorTrainingInput) -> WordVectorTrainingOutp
             for word in words:
                 vec_file.write(
                     str.encode(
-                        word
-                        + "".join(" " + str(vi) for vi in model.get_word_vector(word))
-                        + "\n"
+                        (
+                            (
+                                word
+                                + "".join(
+                                    f" {str(vi)}"
+                                    for vi in model.get_word_vector(word)
+                                )
+                            )
+                            + "\n"
+                        )
                     )
                 )
             vec_file.seek(0)

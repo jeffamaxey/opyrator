@@ -106,12 +106,7 @@ def get_callable(import_string: str) -> Callable:
 
 class Opyrator:
     def __init__(self, func: Union[Callable, str]) -> None:
-        if isinstance(func, str):
-            # Try to load the function from a string notion
-            self.function = get_callable(func)
-        else:
-            self.function = func
-
+        self.function = get_callable(func) if isinstance(func, str) else func
         self._name = "Opyrator"
         self._description = ""
         self._input_type = None
@@ -137,9 +132,7 @@ class Opyrator:
                 pass
 
             try:
-                # Get description from function
-                doc_string = inspect.getdoc(self.function)
-                if doc_string:
+                if doc_string := inspect.getdoc(self.function):
                     self._description = doc_string
             except Exception:
                 pass
@@ -155,18 +148,14 @@ class Opyrator:
                 pass
 
             try:
-                # Get description from
-                doc_string = inspect.getdoc(self.function.__call__)  # type: ignore
-                if doc_string:
+                if doc_string := inspect.getdoc(self.function.__call__):
                     self._description = doc_string
 
                 if (
                     not self._description
                     or self._description == "Call self as a function."
                 ):
-                    # Get docstring from class instead of __call__ function
-                    doc_string = inspect.getdoc(self.function)
-                    if doc_string:
+                    if doc_string := inspect.getdoc(self.function):
                         self._description = doc_string
             except Exception:
                 pass

@@ -16,7 +16,7 @@ def as_form(cls: Type[BaseModel]) -> Any:
         inspect.Parameter(
             field.alias,
             inspect.Parameter.POSITIONAL_ONLY,
-            default=(Form(field.default) if not field.required else Form(...)),
+            default=Form(...) if field.required else Form(field.default),
         )
         for field in cls.__fields__.values()
     ]
@@ -45,7 +45,7 @@ def patch_fastapi(app: FastAPI) -> None:
         assert app.openapi_url is not None
         redoc_ui = get_redoc_html(
             openapi_url="./" + app.openapi_url.lstrip("/"),
-            title=app.title + " - Redoc UI",
+            title=f"{app.title} - Redoc UI",
         )
 
         return HTMLResponse(redoc_ui.body.decode("utf-8"))
@@ -54,7 +54,7 @@ def patch_fastapi(app: FastAPI) -> None:
         assert app.openapi_url is not None
         swagger_ui = get_swagger_ui_html(
             openapi_url="./" + app.openapi_url.lstrip("/"),
-            title=app.title + " - Swagger UI",
+            title=f"{app.title} - Swagger UI",
             oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
         )
 

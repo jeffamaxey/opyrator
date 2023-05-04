@@ -81,15 +81,15 @@ def has_input_ui_renderer(input_class: Type[BaseModel]) -> bool:
 
 
 def is_compatible_audio(mime_type: str) -> bool:
-    return mime_type in ["audio/mpeg", "audio/ogg", "audio/wav"]
+    return mime_type in {"audio/mpeg", "audio/ogg", "audio/wav"}
 
 
 def is_compatible_image(mime_type: str) -> bool:
-    return mime_type in ["image/png", "image/jpeg"]
+    return mime_type in {"image/png", "image/jpeg"}
 
 
 def is_compatible_video(mime_type: str) -> bool:
-    return mime_type in ["video/mp4"]
+    return mime_type in {"video/mp4"}
 
 
 class InputUI:
@@ -141,7 +141,7 @@ class InputUI:
     def _get_default_streamlit_input_kwargs(self, key: str, property: Dict) -> Dict:
         streamlit_kwargs = {
             "label": property.get("title"),
-            "key": str(self._session_state.run_id) + "-" + key,
+            "key": f"{str(self._session_state.run_id)}-{key}",
         }
 
         if property.get("description"):
@@ -165,10 +165,7 @@ class InputUI:
         key_elements = key.split(".")
         for i, key_element in enumerate(key_elements):
             if i == len(key_elements) - 1:
-                # add value to this element
-                if key_element not in data_element:
-                    return None
-                return data_element[key_element]
+                return None if key_element not in data_element else data_element[key_element]
             if key_element not in data_element:
                 data_element[key_element] = {}
             data_element = data_element[key_element]
@@ -213,7 +210,7 @@ class InputUI:
                 selected_time = None
                 date_col, time_col = st.beta_columns(2)
                 with date_col:
-                    date_kwargs = {"label": "Date", "key": key + "-date-input"}
+                    date_kwargs = {"label": "Date", "key": f"{key}-date-input"}
                     if streamlit_kwargs.get("value"):
                         try:
                             date_kwargs["value"] = streamlit_kwargs.get(  # type: ignore
@@ -224,7 +221,7 @@ class InputUI:
                     selected_date = st.date_input(**date_kwargs)
 
                 with time_col:
-                    time_kwargs = {"label": "Time", "key": key + "-time-input"}
+                    time_kwargs = {"label": "Time", "key": f"{key}-time-input"}
                     if streamlit_kwargs.get("value"):
                         try:
                             time_kwargs["value"] = streamlit_kwargs.get(  # type: ignore
@@ -351,13 +348,11 @@ class InputUI:
         key_col, value_col = streamlit_app.beta_columns(2)
 
         with key_col:
-            updated_key = streamlit_app.text_input(
-                "Key", value="", key=key + "-new-key"
-            )
+            updated_key = streamlit_app.text_input("Key", value="", key=f"{key}-new-key")
 
         with value_col:
             # TODO: also add boolean?
-            value_kwargs = {"label": "Value", "key": key + "-new-value"}
+            value_kwargs = {"label": "Value", "key": f"{key}-new-value"}
             if property["additionalProperties"].get("type") == "integer":
                 value_kwargs["value"] = 0  # type: ignore
                 updated_value = streamlit_app.number_input(**value_kwargs)
@@ -375,12 +370,12 @@ class InputUI:
             clear_col, add_col = streamlit_app.beta_columns([1, 2])
 
             with clear_col:
-                if streamlit_app.button("Clear Items", key=key + "-clear-items"):
+                if streamlit_app.button("Clear Items", key=f"{key}-clear-items"):
                     current_dict = {}
 
             with add_col:
                 if (
-                    streamlit_app.button("Add Item", key=key + "-add-item")
+                    streamlit_app.button("Add Item", key=f"{key}-add-item")
                     and updated_key
                 ):
                     current_dict[updated_key] = updated_value
@@ -411,8 +406,9 @@ class InputUI:
         )
         uploaded_files_bytes = []
         if uploaded_files:
-            for uploaded_file in uploaded_files:
-                uploaded_files_bytes.append(uploaded_file.read())
+            uploaded_files_bytes.extend(
+                uploaded_file.read() for uploaded_file in uploaded_files
+            )
         return uploaded_files_bytes
 
     def _render_single_boolean_input(
@@ -461,14 +457,13 @@ class InputUI:
 
         if property.get("default") is not None:
             streamlit_kwargs["value"] = number_transform(property.get("default"))  # type: ignore
+        elif "min_value" in streamlit_kwargs:
+            streamlit_kwargs["value"] = streamlit_kwargs["min_value"]
+        elif number_transform == int:
+            streamlit_kwargs["value"] = 0
         else:
-            if "min_value" in streamlit_kwargs:
-                streamlit_kwargs["value"] = streamlit_kwargs["min_value"]
-            elif number_transform == int:
-                streamlit_kwargs["value"] = 0
-            else:
-                # Set default value to step
-                streamlit_kwargs["value"] = number_transform(streamlit_kwargs["step"])
+            # Set default value to step
+            streamlit_kwargs["value"] = number_transform(streamlit_kwargs["step"])
 
         if "min_value" in streamlit_kwargs and "max_value" in streamlit_kwargs:
             # TODO: Only if less than X steps
@@ -485,7 +480,7 @@ class InputUI:
                 # Set property key as fallback title
                 property["title"] = name_to_title(property_key)
             # construct full key based on key parts -> required later to get the value
-            full_key = key + "." + property_key
+            full_key = f"{key}." + property_key
             object_inputs[property_key] = self._render_property(
                 streamlit_app, full_key, property
             )
@@ -520,7 +515,7 @@ class InputUI:
         if not current_list:
             current_list = []
 
-        value_kwargs = {"label": "Value", "key": key + "-new-value"}
+        value_kwargs = {"label": "Value", "key": f"{key}-new-value"}
         if property["items"]["type"] == "integer":
             value_kwargs["value"] = 0  # type: ignore
             new_value = streamlit_app.number_input(**value_kwargs)
@@ -538,12 +533,12 @@ class InputUI:
             clear_col, add_col = streamlit_app.beta_columns([1, 2])
 
             with clear_col:
-                if streamlit_app.button("Clear Items", key=key + "-clear-items"):
+                if streamlit_app.button("Clear Items", key=f"{key}-clear-items"):
                     current_list = []
 
             with add_col:
                 if (
-                    streamlit_app.button("Add Item", key=key + "-add-item")
+                    streamlit_app.button("Add Item", key=f"{key}-add-item")
                     and new_value is not None
                 ):
                     current_list.append(new_value)
@@ -580,12 +575,12 @@ class InputUI:
             clear_col, add_col = streamlit_app.beta_columns([1, 2])
 
             with clear_col:
-                if streamlit_app.button("Clear Items", key=key + "-clear-items"):
+                if streamlit_app.button("Clear Items", key=f"{key}-clear-items"):
                     current_list = []
 
             with add_col:
                 if (
-                    streamlit_app.button("Add Item", key=key + "-add-item")
+                    streamlit_app.button("Add Item", key=f"{key}-add-item")
                     and input_data
                 ):
                     current_list.append(input_data)
@@ -863,10 +858,6 @@ def render_streamlit_ui(opyrator: Opyrator) -> None:
                 session_state.latest_operation_input = input_data_obj  # should this really be saved as additional session object?
             except ValidationError as ex:
                 st.error(ex)
-            else:
-                # st.success("Operation executed successfully.")
-                pass
-
     if session_state.output_data:
         OutputUI(
             session_state.output_data, session_state.latest_operation_input

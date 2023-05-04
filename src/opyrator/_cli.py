@@ -51,8 +51,7 @@ def call(opyrator: str, input_data: str) -> None:
     try:
         from opyrator import Opyrator
 
-        output = Opyrator(opyrator)(input_data)
-        if output:
+        if output := Opyrator(opyrator)(input_data):
             typer.echo(output.json(indent=4))
         else:
             typer.echo("Nothing returned!")

@@ -41,7 +41,9 @@ setup(
     python_requires=REQUIRES_PYTHON,
     url=URL,
     license=LICENSE,
-    packages=find_packages(where="src", exclude=("tests", "test", "examples", "docs")),
+    packages=find_packages(
+        where="src", exclude=("tests", "test", "examples", "docs")
+    ),
     package_dir={"": "src"},
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
     zip_safe=False,
@@ -57,7 +59,6 @@ setup(
         "numpy",
         "loguru",
     ],
-    # deprecated: dependency_links=dependency_links,
     extras_require={
         # TODO: Add all extras (e.g. for build and test) here:
         # extras can be installed via: pip install package[dev]
@@ -106,9 +107,9 @@ setup(
         "Topic :: Utilities",
     ],
     project_urls={
-        "Changelog": URL + "/releases",
-        "Issue Tracker": URL + "/issues",
-        "Documentation": URL + "#documentation",
+        "Changelog": f"{URL}/releases",
+        "Issue Tracker": f"{URL}/issues",
+        "Documentation": f"{URL}#documentation",
         "Source": URL,
     },
     entry_points={"console_scripts": [f"{NAME}={MAIN_PACKAGE}._cli:cli"]},
